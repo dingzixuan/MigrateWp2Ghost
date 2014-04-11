@@ -25,5 +25,5 @@ $migrate = new Migrate();
 $migrate->setMysqlConn( "127.0.0.1", "root", "qazwsx", "wp4dzx" );
 $migrate->setWpTbPre( "wp" );
 $migrate->setSqliteConn( "D:\\dzx_WorkSpace\\nodejs\\ghost-0.4.2\\content\\data\\ghost-dev.db" );
-$migrate->getAllGhPosts();
+$migrate->migratePosts();
 

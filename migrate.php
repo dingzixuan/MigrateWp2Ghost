@@ -1,4 +1,5 @@
 <?php
+
 class Migrate {
 	private $_mysql_conn;
 	private $_sqlite_conn;
@@ -21,15 +22,44 @@ class Migrate {
 	}
 
 	public function migratePosts() {
-
+		$queryStr = "SELECT * FROM {$this->_wp_tb_pre}posts WHERE post_type='post';";
+		mysql_query("set names utf8;");
+		$result = mysql_query( $queryStr, $this->_mysql_conn );
+		$num_rows = 0;
+		$sth = $this->_sqlite_conn->prepare('INSERT INTO `posts` (`uuid`, `title`, `slug`, `html`, `featured`, `page`, `status`, `language`, `author_id`, `created_at`, `created_by`, `published_at`) VALUES (:uuid, :title, :slug, :html, :featured, :page, :status, :language, :author_id, :created_at, :created_by, :published_at)');
+		while ( $row = mysql_fetch_object( $result ) ) {
+			$res = $sth->execute(
+                array(':uuid' => '63240255-4c39-4458-a673-0eab8c31827d',	//看ghost的uuid生成算法
+                ':title'=>$row->post_title, 
+                ':slug'=>$row->post_title,	//将title中的特殊符号替代掉？
+                ':html'=>$row->post_content,	//还有markdown字段，添加html转markdown的组件
+                ':featured'=>0,
+                ':page'=>0, 
+                ':status'=>'published', 
+                ':language'=>'en_US', 
+                ':author_id'=>1,
+                ':created_at'=>$row->post_date, 
+                ':created_by'=>1, 
+                ':published_at'=>$row->post_date, 
+                )
+        	);
+			$num_rows++;
+		}
+		echo $num_rows;
+		mysql_free_result( $result );
 	}
 
 	public function getAllWpPosts() {
-		$queryStr = "SELECT * FROM {$this->_wp_tb_pre}posts;";
+		$queryStr = "SELECT * FROM {$this->_wp_tb_pre}posts WHERE post_type='post';";
+		mysql_query("set names utf8;");
 		$result = mysql_query( $queryStr, $this->_mysql_conn );
 		$num_rows = 0;
 		$fetch_result = array();
 		while ( $row = mysql_fetch_object( $result ) ) {
+			echo $row->post_title;
+			echo "<br/>";
+			echo $row->post_content;
+			echo "<br/>"; 
 			$fetch_result[$num_rows] = $row;
 			$num_rows++;
 		}
